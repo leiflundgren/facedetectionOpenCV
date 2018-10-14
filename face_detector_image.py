@@ -10,6 +10,7 @@ ap.add_argument("-i", "--image", required=True, help="patho to input image")
 ap.add_argument("-p", "--prototxt", required=True, help="path to Caffee 'deploy' prototxt file")
 ap.add_argument("-m", "--model", required=True, help="path to Caffe pre-trained model")
 ap.add_argument("-c", "--confidence", type=float, default=0.5, help="minimum probability to filter weak detections")
+ap.add_argument("-s", "--scale-image", type=bool, default=False, help="scale down image it too large")
 
 args = vars(ap.parse_args())
 
@@ -53,5 +54,17 @@ for i in range(0, detections.shape[2]):
                     cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
 
 # show the output image
+
+if "scale-image" in args and args["scale-image"]:
+    height, width, depth = image.shape
+    max_h = 800.0
+    max_w = 1500.0
+    if height > max_h or width > max_w:
+        scale = max_h / height if height > max_h else max_w / width
+        #nw,nh= int(img.shape[1]*scale), int(img.shape[0]*scale)
+        nw,nh = int(width * scale), int(height * scale)
+        #trace(7, 'Scaling image from {0} to {1}'.format((width,height), (nw,nh)))
+        image = cv2.resize(image, (nw,nh))
+
 cv2.imshow("Output", image)
 cv2.waitKey(0)
